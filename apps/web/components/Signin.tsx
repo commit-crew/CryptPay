@@ -12,32 +12,33 @@
 
 // export default Signin
 
-"use client"
+"use client";
 
-import * as React from "react"
-import { useForm } from "@tanstack/react-form"
-import { toast } from "sonner"
-import * as z from "zod"
+import * as React from "react";
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
+import * as z from "zod";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { formSchema } from "@/lib/schemas";
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { signinSchema } from "@/lib/schemas";
+import { numanFont } from "@/app/fonts";
 
 export default function Signin() {
   const form = useForm({
     defaultValues: {
-      title: "",
-      description: "",
+      email: "",
+      password: "",
     },
     validators: {
-      onSubmit: formSchema,
+      onSubmit: signinSchema,
     },
     onSubmit: async ({ value }) => {
       toast("You submitted the following values:", {
@@ -53,104 +54,87 @@ export default function Signin() {
         style: {
           "--border-radius": "calc(var(--radius)  + 4px)",
         } as React.CSSProperties,
-      })
+      });
     },
-  })
+  });
 
   return (
-    <div className='w-full md:w-[58%] h-full flex flex-col'>
-    <Card className="w-full sm:max-w-md">
-      <CardHeader>
-        <CardTitle>Bug Report</CardTitle>
-        <CardDescription>
-          Help us improve by reporting bugs you encounter.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form
-          id="bug-report-form"
-          onSubmit={(e) => {
-            e.preventDefault()
-            form.handleSubmit()
-          }}
-        >
-          <FieldGroup>
-            <form.Field
-              name="title"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Bug Title</FieldLabel>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      placeholder="Login button not working on mobile"
-                      autoComplete="off"
-                    />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                )
-              }}
-            />
-            <form.Field
-              name="description"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Description</FieldLabel>
-                    <InputGroup>
-                      <InputGroupTextarea
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="I'm having an issue with the login button on mobile."
-                        rows={6}
-                        className="min-h-24 resize-none"
-                        aria-invalid={isInvalid}
-                      />
-                      <InputGroupAddon align="block-end">
-                        <InputGroupText className="tabular-nums">
-                          {field.state.value.length}/100 characters
-                        </InputGroupText>
-                      </InputGroupAddon>
-                    </InputGroup>
-                    <FieldDescription>
-                      Include steps to reproduce, expected behavior, and what
-                      actually happened.
-                    </FieldDescription>
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                )
-              }}
-            />
-          </FieldGroup>
-        </form>
-      </CardContent>
-      <CardFooter>
-        <Field orientation="horizontal">
-          <Button type="button" variant="outline" onClick={() => form.reset()}>
-            Reset
-          </Button>
-          <Button type="submit" form="bug-report-form">
-            Submit
-          </Button>
-        </Field>
-      </CardFooter>
-    </Card>
+    <div className="w-full md:w-[58%] h-full flex flex-col justify-evenly items-center">
+      <div className={numanFont.className + " text-[30px] text-[#6750A4] w-[300px] md:w-[400px] lg:w-[500px]"}>
+        CryptoPay
+      </div>
+      <div className="flex flex-col gap-20">
+        <div className="text-[26px]">Sign in</div>
+        <div>
+          <form
+            id="bug-report-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+            className="w-[300px] md:w-[400px] lg:w-[500px] flex flex-col gap-8"
+          >
+            <FieldGroup>
+              <div className="bg-[#E5DBFF] p-3 rounded-3xl">
+                <form.Field
+                  name="email"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          className="focus:ring-0 border-none shadow-none focus-visible:ring-0 p-0 text-[#6750A4]"
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+              </div>
+            </FieldGroup>
+            <FieldGroup>
+              <div className="bg-[#E5DBFF] px-4 py-3 rounded-xl">
+                <form.Field
+                  name="password"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          className="focus:ring-0 border-none shadow-none focus-visible:ring-0 p-0 text-[#6750A4]"
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+              </div>
+            </FieldGroup>
+          </form>
+          <div>New User ?</div>
+        </div>
+      </div>
+      <div></div>
     </div>
-  )
+  );
 }
