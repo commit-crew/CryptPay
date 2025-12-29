@@ -1,37 +1,25 @@
-// "use client";
-
-// const Signin = () => {
-//   return (
-//     <div className='w-full md:w-[58%] h-full flex flex-col'>
-//         <div></div>
-//         <div></div>
-//         <div></div>
-//     </div>
-//   )
-// }
-
-// export default Signin
-
 "use client";
 
 import * as React from "react";
-import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
-import * as z from "zod";
-
+import { Input } from "@/components/ui/input";
+import toast from "@/components/Toast";
 import { Button } from "@/components/ui/button";
+import { useForm } from "@tanstack/react-form";
+import { useRouter } from "next/navigation";
+import { numanFont } from "@/app/fonts";
+import { signinSchema } from "@/lib/schemas";
+import { UnifiedWalletButton, useWallet } from "@jup-ag/wallet-adapter";
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { signinSchema } from "@/lib/schemas";
-import { numanFont } from "@/app/fonts";
+import { signIn } from "@/lib/user";
 
 export default function Signin() {
+  const router = useRouter();
+  const { publicKey } = useWallet();
   const form = useForm({
     defaultValues: {
       email: "",
@@ -41,29 +29,38 @@ export default function Signin() {
       onSubmit: signinSchema,
     },
     onSubmit: async ({ value }) => {
-      toast("You submitted the following values:", {
-        description: (
-          <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-            <code>{JSON.stringify(value, null, 2)}</code>
-          </pre>
-        ),
-        position: "bottom-right",
-        classNames: {
-          content: "flex flex-col gap-2",
-        },
-        style: {
-          "--border-radius": "calc(var(--radius)  + 4px)",
-        } as React.CSSProperties,
-      });
+      try {
+        const { email, password } = value;
+        const signin = await signIn(email, password);
+        localStorage.setItem("authToken", signin.message);
+        toast({
+          title: "Signed In",
+          description: "Welcome back!",
+        });
+        // Redirect to dashboard or home page
+        // router.push('/dashboard'); // if using Next.js router
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Sign in failed";
+        toast({
+          title: "Sign In Failed",
+          description: errorMessage,
+        });
+      }
     },
   });
 
   return (
     <div className="w-full md:w-[58%] h-full flex flex-col justify-evenly items-center">
-      <div className={numanFont.className + " text-[30px] text-[#6750A4] w-[300px] md:w-[400px] lg:w-[500px]"}>
+      <div
+        className={
+          numanFont.className +
+          " text-[36px] text-[#6750A4] w-[300px] md:w-[400px] lg:w-[500px]"
+        }
+      >
         CryptoPay
       </div>
-      <div className="flex flex-col gap-20">
+      <div className="flex flex-col gap-12">
         <div className="text-[26px]">Sign in</div>
         <div>
           <form
@@ -103,7 +100,7 @@ export default function Signin() {
               </div>
             </FieldGroup>
             <FieldGroup>
-              <div className="bg-[#E5DBFF] px-4 py-3 rounded-xl">
+              <div className="bg-[#E5DBFF] px-4 py-3 rounded-3xl">
                 <form.Field
                   name="password"
                   children={(field) => {
@@ -130,11 +127,30 @@ export default function Signin() {
                 />
               </div>
             </FieldGroup>
+            <div className="flex flex-col mt-4 gap-1">
+              <div className="text-[14px]">
+                <span>New User ?</span>
+                <span
+                  className="text-[#6750A4] ml-1 cursor-pointer"
+                  onClick={() => router.push("/signup")}
+                >
+                  Sign Up
+                </span>
+              </div>
+              <div className="text-[#6750A4] text-[14px]">Forgot Password</div>
+            </div>
+            <div className="flex flex-col gap-3 items-center">
+              <UnifiedWalletButton buttonClassName="px-5! py-4! bg-[#6750A4]! w-fit! rounded-full! font-semibold! text-white!" />
+              <Button
+                className="px-8 py-5 bg-[#6750A4] w-fit rounded-full font-semibold cursor-pointer text-black"
+                type="submit"
+              >
+                Sign in
+              </Button>
+            </div>
           </form>
-          <div>New User ?</div>
         </div>
       </div>
-      <div></div>
     </div>
   );
 }
