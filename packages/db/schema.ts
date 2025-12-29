@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { pgTable, varchar } from "drizzle-orm/pg-core";
+import { pgTable, varchar, timestamp } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
   id: varchar().primaryKey().$defaultFn(() => createId()),
@@ -7,4 +7,15 @@ export const usersTable = pgTable("users", {
   email: varchar({ length: 255 }).notNull().unique(),
   password: varchar({ length: 255 }).notNull(),
   publicAddress: varchar({ length: 255 }).unique()
+});
+
+export const transactionHistory = pgTable("transactionHistory", {
+  id: varchar().primaryKey().$defaultFn(() => createId()),
+  fromToken: varchar({ length: 255 }).notNull(),
+  toToken: varchar({ length: 255 }).notNull(),
+  fromQuantity: varchar({ length: 255 }).notNull(),
+  toQuantity: varchar({ length: 255 }).notNull(),
+  conversionRate: varchar({ length: 255 }).notNull(),
+  status: varchar({ length: 255 }).notNull(),
+  createdAt: timestamp().defaultNow().notNull(),
 });
