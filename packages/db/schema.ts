@@ -11,6 +11,7 @@ export const usersTable = pgTable("users", {
 
 export const transactionHistory = pgTable("transactionHistory", {
   id: varchar().primaryKey().$defaultFn(() => createId()),
+  userId: varchar({ length: 255 }).notNull().references(() => usersTable.id),
   fromToken: varchar({ length: 255 }).notNull(),
   toToken: varchar({ length: 255 }).notNull(),
   fromQuantity: varchar({ length: 255 }).notNull(),
