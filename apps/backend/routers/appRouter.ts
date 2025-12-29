@@ -73,7 +73,8 @@ appRouter.post("/get_qoute", async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: "Got qoute",
+      /// @ts-ignore
+      message: respData.requestId ? respData.requestId : "None",
     });
   } catch (error) {
     const errorMessage =
@@ -127,7 +128,42 @@ appRouter.post("/get_qoute", async (req: Request, res: Response) => {
   //   mode: "manual",
   //   totalTime: 546,
   // }
-  
 });
 
+appRouter.post("/execute", async (req, res) => {
+  try {
+    const data = req.body;
+    const {
+      requestId,
+      signedTransaction,
+    }: { requestId: string; signedTransaction: string } = data;
+    const apiKeys = process.env.JUP_API_KEY!.split(",");
+    const randInd = Math.floor(Math.random() * 4);
+    const options = {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKeys[randInd]!,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        signedTransaction,
+        requestId,
+      }),
+    };
+
+    const response = await fetch(
+      "https://api.jup.ag/ultra/v1/execute",
+      options
+    );
+    const result = await response.json();
+
+    res.status(200).json(result);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    res.status(500).json({
+      success: false,
+      message: errorMessage,
+    });
+  }
+});
 export default appRouter;
