@@ -54,7 +54,7 @@ appRouter.post("/fetch_data", async (req, res) => {
 appRouter.post("/get_qoute", async (req: Request, res: Response) => {
   try {
     const data = req.body;
-    const { inputMint, outputMint, targetAmount, taker } = data;
+    const { inputMint, outputMint, targetAmount, reciever } = data;
     const apiKeys = process.env.JUP_API_KEY!.split(",");
     const randInd = Math.floor(Math.random() * 4);
 
@@ -64,7 +64,7 @@ appRouter.post("/get_qoute", async (req: Request, res: Response) => {
     };
 
     const response = await fetch(
-      `https://api.jup.ag/ultra/v1/order?inputMint=${inputMint}&outputMint=${outputMint}&amount=${targetAmount}&reciever=${taker}&swapMode=ExactOut`,
+      `https://api.jup.ag/ultra/v1/order?inputMint=${inputMint}&outputMint=${outputMint}&amount=${targetAmount}&reciever=${reciever}&swapMode=ExactOut`,
       options
     );
 
