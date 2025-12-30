@@ -14,7 +14,7 @@ const SigninPage = () => {
           " hidden md:flex flex-col items-center justify-center flex-1 bg-[#E5DBFF] text-[#6750A4]"
         }
       >
-        <div className="flex flex-col gap-3">
+        <div>
           <motion.div className="text-3xl lg:text-5xl">Payments</motion.div>
           <motion.div className="text-3xl lg:text-5xl"
           initial={{
