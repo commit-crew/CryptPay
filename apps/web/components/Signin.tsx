@@ -50,6 +50,10 @@ export default function Signin() {
     },
   });
 
+  React.useEffect(() => {
+    if(localStorage.getItem("authToken")) return router.push("/cryptopay");
+  }, [])
+
   return (
     <div className="w-full md:w-[58%] h-full flex flex-col justify-evenly items-center">
       <div
