@@ -30,15 +30,18 @@ export default function Signin() {
     onSubmit: async ({ value }) => {
       try {
         const { email, password } = value;
+        console.log(value);
         const signin = await signIn(email, password);
         localStorage.setItem("authToken", signin.message);
         toast({
           title: "Signed In",
           description: "Welcome back!",
         });
-        // Redirect to dashboard or home page
-        // router.push('/dashboard'); // if using Next.js router
+        setTimeout(() => {
+          router.push('/cryptopay');
+        }, 100);
       } catch (error) {
+        console.error("Sign in error:", error);
         const errorMessage =
           error instanceof Error ? error.message : "Sign in failed";
         toast({
@@ -50,7 +53,10 @@ export default function Signin() {
   });
 
   React.useEffect(() => {
-    if(localStorage.getItem("authToken")) return router.push("/cryptopay");
+    const token = localStorage.getItem("authToken");
+    if(token) {
+      router.push("/cryptopay");
+    }
   }, [router])
 
   return (
