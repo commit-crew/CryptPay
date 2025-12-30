@@ -1,156 +1,156 @@
-// "use client";
+"use client";
 
-// const Signin = () => {
-//   return (
-//     <div className='w-full md:w-[58%] h-full flex flex-col'>
-//         <div></div>
-//         <div></div>
-//         <div></div>
-//     </div>
-//   )
-// }
-
-// export default Signin
-
-"use client"
-
-import * as React from "react"
-import { useForm } from "@tanstack/react-form"
-import { toast } from "sonner"
-import * as z from "zod"
-
-import { Button } from "@/components/ui/button"
+import * as React from "react";
+import { Input } from "@/components/ui/input";
+import toast from "@/components/Toast";
+import { Button } from "@/components/ui/button";
+import { useForm } from "@tanstack/react-form";
+import { useRouter } from "next/navigation";
+import { numanFont } from "@/app/fonts";
+import { signinSchema } from "@/lib/schemas";
+import { UnifiedWalletButton, useWallet } from "@jup-ag/wallet-adapter";
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { formSchema } from "@/lib/schemas";
+} from "@/components/ui/field";
+import { signIn } from "@/lib/user";
 
 export default function Signin() {
+  const router = useRouter();
+  const { publicKey } = useWallet();
   const form = useForm({
     defaultValues: {
-      title: "",
-      description: "",
+      email: "",
+      password: "",
     },
     validators: {
-      onSubmit: formSchema,
+      onSubmit: signinSchema,
     },
     onSubmit: async ({ value }) => {
-      toast("You submitted the following values:", {
-        description: (
-          <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-            <code>{JSON.stringify(value, null, 2)}</code>
-          </pre>
-        ),
-        position: "bottom-right",
-        classNames: {
-          content: "flex flex-col gap-2",
-        },
-        style: {
-          "--border-radius": "calc(var(--radius)  + 4px)",
-        } as React.CSSProperties,
-      })
+      try {
+        const { email, password } = value;
+        const signin = await signIn(email, password);
+        localStorage.setItem("authToken", signin.message);
+        toast({
+          title: "Signed In",
+          description: "Welcome back!",
+        });
+        // Redirect to dashboard or home page
+        // router.push('/dashboard'); // if using Next.js router
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Sign in failed";
+        toast({
+          title: "Sign In Failed",
+          description: errorMessage,
+        });
+      }
     },
-  })
+  });
 
   return (
-    <div className='w-full md:w-[58%] h-full flex flex-col'>
-    <Card className="w-full sm:max-w-md">
-      <CardHeader>
-        <CardTitle>Bug Report</CardTitle>
-        <CardDescription>
-          Help us improve by reporting bugs you encounter.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form
-          id="bug-report-form"
-          onSubmit={(e) => {
-            e.preventDefault()
-            form.handleSubmit()
-          }}
-        >
-          <FieldGroup>
-            <form.Field
-              name="title"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Bug Title</FieldLabel>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      placeholder="Login button not working on mobile"
-                      autoComplete="off"
-                    />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                )
-              }}
-            />
-            <form.Field
-              name="description"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Description</FieldLabel>
-                    <InputGroup>
-                      <InputGroupTextarea
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="I'm having an issue with the login button on mobile."
-                        rows={6}
-                        className="min-h-24 resize-none"
-                        aria-invalid={isInvalid}
-                      />
-                      <InputGroupAddon align="block-end">
-                        <InputGroupText className="tabular-nums">
-                          {field.state.value.length}/100 characters
-                        </InputGroupText>
-                      </InputGroupAddon>
-                    </InputGroup>
-                    <FieldDescription>
-                      Include steps to reproduce, expected behavior, and what
-                      actually happened.
-                    </FieldDescription>
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </Field>
-                )
-              }}
-            />
-          </FieldGroup>
-        </form>
-      </CardContent>
-      <CardFooter>
-        <Field orientation="horizontal">
-          <Button type="button" variant="outline" onClick={() => form.reset()}>
-            Reset
-          </Button>
-          <Button type="submit" form="bug-report-form">
-            Submit
-          </Button>
-        </Field>
-      </CardFooter>
-    </Card>
+    <div className="w-full md:w-[58%] h-full flex flex-col justify-evenly items-center">
+      <div
+        className={
+          numanFont.className +
+          " text-[36px] text-[#6750A4] w-[300px] md:w-[400px] lg:w-[500px]"
+        }
+      >
+        CryptoPay
+      </div>
+      <div className="flex flex-col gap-12">
+        <div className="text-[26px]">Sign in</div>
+        <div>
+          <form
+            id="bug-report-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+            className="w-[300px] md:w-[400px] lg:w-[500px] flex flex-col gap-8"
+          >
+            <FieldGroup>
+              <div className="bg-[#E5DBFF] p-3 rounded-3xl">
+                <form.Field
+                  name="email"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          className="focus:ring-0 border-none shadow-none focus-visible:ring-0 p-0 text-[#6750A4]"
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+              </div>
+            </FieldGroup>
+            <FieldGroup>
+              <div className="bg-[#E5DBFF] px-4 py-3 rounded-3xl">
+                <form.Field
+                  name="password"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          className="focus:ring-0 border-none shadow-none focus-visible:ring-0 p-0 text-[#6750A4]"
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+              </div>
+            </FieldGroup>
+            <div className="flex flex-col mt-4 gap-1">
+              <div className="text-[14px]">
+                <span>New User ?</span>
+                <span
+                  className="text-[#6750A4] ml-1 cursor-pointer"
+                  onClick={() => router.push("/signup")}
+                >
+                  Sign Up
+                </span>
+              </div>
+              <div className="text-[#6750A4] text-[14px]">Forgot Password</div>
+            </div>
+            <div className="flex flex-col gap-3 items-center">
+              <UnifiedWalletButton buttonClassName="px-5! py-4! bg-[#6750A4]! w-fit! rounded-full! font-semibold! text-white!" />
+              <Button
+                className="px-8 py-5 bg-[#6750A4] w-fit rounded-full font-semibold cursor-pointer text-black"
+                type="submit"
+              >
+                Sign in
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-  )
+  );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { poppinsFont } from "./fonts";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,7 +15,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={poppinsFont.className}>{children}</body>
+      <body className={poppinsFont.className}>
+        {children}
+        <Toaster position="top-center" />
+      </body>
     </html>
   );
 }
