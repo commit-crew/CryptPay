@@ -6,7 +6,7 @@ import * as motion from "motion/react-client";
 
 const SigninPage = () => {
   return (
-    <section className="flex w-screen h-screen">
+    <section className="flex max-w-screen min-h-screen">
       <Signin />
       <motion.div
         className={
@@ -14,9 +14,9 @@ const SigninPage = () => {
           " hidden md:flex flex-col items-center justify-center flex-1 bg-[#E5DBFF] text-[#6750A4]"
         }
       >
-        <div>
-          <motion.div className="text-4xl lg:text-7xl">Payments</motion.div>
-          <motion.div className="text-4xl lg:text-7xl"
+        <div className="flex flex-col gap-3">
+          <motion.div className="text-3xl lg:text-5xl">Payments</motion.div>
+          <motion.div className="text-3xl lg:text-5xl"
           initial={{
             x: 30,
           }}
@@ -29,7 +29,7 @@ const SigninPage = () => {
             repeatType: "reverse"
           }}
           >Made</motion.div>
-          <motion.div className="text-4xl lg:text-7xl"
+          <motion.div className="text-3xl lg:text-5xl"
           initial={{
             x: 55
           }}
