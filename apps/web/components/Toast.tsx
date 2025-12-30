@@ -2,6 +2,7 @@
 
 import { toast as sonnerToast } from "sonner";
 import { numanFont } from "@/app/fonts";
+import type { ToastProps } from "@/lib/types";
 
 export default function toast(toast: Omit<ToastProps, "id">) {
   return sonnerToast.custom((id) => (
@@ -17,10 +18,4 @@ function Toast(props: ToastProps) {
       <div className={`text-[#FFF8F1] ` + numanFont.className}>{title}</div>
     </div>
   );
-}
-
-interface ToastProps {
-  id: string | number;
-  title: string;
-  description: string;
 }

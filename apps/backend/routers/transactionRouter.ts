@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { transactionHistory, usersTable } from "db/tables";
 import { db, eq } from "db/connection";
+import { alias } from "drizzle-orm/pg-core";
 
 const transactionRouter = Router();
 
@@ -14,7 +15,8 @@ transactionRouter.post("/process", async (req: Request, res: Response) => {
       fromQuantity,
       toQuantity,
       conversionRate,
-      userId
+      userId,
+      toUserId
     }: {
       status: string;
       fromToken: string;
@@ -22,7 +24,8 @@ transactionRouter.post("/process", async (req: Request, res: Response) => {
       fromQuantity: string;
       toQuantity: string;
       conversionRate: string;
-      userId: string
+      userId: string;
+      toUserId: string;
     } = data;
 
     const newtransaction: typeof transactionHistory.$inferInsert = {
@@ -32,7 +35,8 @@ transactionRouter.post("/process", async (req: Request, res: Response) => {
       fromQuantity,
       toQuantity,
       conversionRate,
-      userId
+      userId,
+      toUserId
     };
 
     const transId = await db.insert(transactionHistory).values(newtransaction).returning({
@@ -64,7 +68,11 @@ transactionRouter.get("/history/:userId", async (req: Request, res: Response) =>
       });
     }
 
-    // Get transaction history with user details
+    // Create aliases for the users table to join both fromUser and toUser
+    const fromUser = alias(usersTable, 'fromUser');
+    const toUser = alias(usersTable, 'toUser');
+
+    // Get transaction history with both fromUser and toUser details
     const transactions = await db
       .select({
         id: transactionHistory.id,
@@ -75,18 +83,38 @@ transactionRouter.get("/history/:userId", async (req: Request, res: Response) =>
         conversionRate: transactionHistory.conversionRate,
         status: transactionHistory.status,
         createdAt: transactionHistory.createdAt,
-        userName: usersTable.name,
+        userName: fromUser.name,
+        toUserName: toUser.name,
+        toUserEmail: toUser.email,
       })
       .from(transactionHistory)
-      .innerJoin(usersTable, eq(transactionHistory.userId, usersTable.id))
+      .innerJoin(fromUser, eq(transactionHistory.userId, fromUser.id))
+      .innerJoin(toUser, eq(transactionHistory.toUserId, toUser.id))
       .where(eq(transactionHistory.userId, userId))
       .orderBy(transactionHistory.createdAt)
       .limit(parseInt(limit as string));
 
+    // Transform the data to match the expected interface
+    const transformedTransactions = transactions.map(transaction => ({
+      id: transaction.id,
+      fromToken: transaction.fromToken,
+      toToken: transaction.toToken,
+      fromQuantity: transaction.fromQuantity,
+      toQuantity: transaction.toQuantity,
+      conversionRate: transaction.conversionRate,
+      status: transaction.status,
+      createdAt: transaction.createdAt,
+      userName: transaction.userName,
+      toUser: {
+        name: transaction.toUserName,
+        email: transaction.toUserEmail,
+      }
+    }));
+
     return res.status(200).json({
       success: true,
-      data: transactions,
-      message: `Found ${transactions.length} transactions`,
+      data: transformedTransactions,
+      message: `Found ${transformedTransactions.length} transactions`,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";

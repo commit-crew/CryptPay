@@ -5,38 +5,9 @@ import Image from "next/image";
 import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { searchUsers, verifyToken } from "@/lib/user";
+import type { User, CurrentUser } from "@/lib/types";
 import TransactionHist from "@/components/TransactionHist";
-
-// Custom debounce hook
-const useDebounce = (value: string, delay: number) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-};
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  publicAddress: string;
-}
-
-interface CurrentUser {
-  id: string;
-  name: string;
-  email: string;
-  publicAddress: string;
-}
+import { useDebounce } from "@/lib/hooks";
 
 const CryptoPay = () => {
   const router = useRouter();
@@ -54,7 +25,7 @@ const CryptoPay = () => {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        
+
         if (!token) {
           router.push("/signin");
           return;
@@ -134,7 +105,9 @@ const CryptoPay = () => {
           CryptoPay
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">Welcome, {currentUser.name}</span>
+          <span className="hidden md:block text-sm text-gray-600">
+            Welcome, {currentUser.name}
+          </span>
           <button
             onClick={handleLogout}
             className="text-sm text-red-600 hover:underline"
@@ -150,109 +123,128 @@ const CryptoPay = () => {
           />
         </div>
       </div>
-      <div className="relative flex flex-col items-center gap-15 w-full max-w-[330px] md:max-w-[700px]">
-        <div className="relative w-full">
-          <div className="absolute left-5 z-20 top-1/2 transform -translate-y-1/2">
-            <Image
-              src={"/images/search-icon.svg"}
-              alt=""
-              width={25}
-              height={25}
+      <div className="flex flex-col gap-26 w-full items-center max-w-[330px] md:max-w-[700px]">
+        <div className="relative flex flex-col items-center gap-15 w-full">
+          <div className="relative w-full">
+            <div className="absolute left-5 z-20 top-1/2 transform -translate-y-1/2">
+              <Image
+                src={"/images/search-icon.svg"}
+                alt=""
+                width={25}
+                height={25}
+              />
+            </div>
+            <input
+              type="text"
+              ref={searchbarRef}
+              value={searchTerm}
+              onChange={handleInputChange}
+              placeholder="Search users by name..."
+              className="w-full pl-14 pr-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-0 focus-visible:right-0 focus:border-transparent drop-shadow-[0_6px_4px_rgba(0,0,0,0.25)] bg-[#F6F6F6]"
             />
           </div>
-          <input
-            type="text"
-            ref={searchbarRef}
-            value={searchTerm}
-            onChange={handleInputChange}
-            placeholder="Search users by name..."
-            className="min-w-full pl-14 pr-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-0 focus-visible:right-0 focus:border-transparent drop-shadow-[0_6px_4px_rgba(0,0,0,0.25)] bg-[#F6F6F6]"
-          />
-        </div>
 
-        {/* Loading state */}
-        {isLoading && (
-          <div className="text-center py-4 text-gray-500 absolute top-23">
-            Searching...
-          </div>
-        )}
-
-        {/* Error state */}
-        {error && (
-          <div className="text-center py-4 text-red-500 absolute top-23">
-            {error}
-          </div>
-        )}
-
-        {/* Search results */}
-        {searchResults.length > 0 && (
-          <div className="space-y-3 absolute top-23 left-0 right-0">
-            <h3
-              className={
-                numanFont.className + " md:text-md font-semibold text-[#6750A4]"
-              }
-            >
-              Search Results ({searchResults.length})
-            </h3>
-            {searchResults.map((user) => (
-              <div
-                key={user.id}
-                className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium text-gray-900">{user.name}</h4>
-                    <p className="text-sm text-gray-600">{user.email}</p>
-                  </div>
-                  <div className="text-xs text-gray-500 font-mono">
-                    {user.publicAddress?.slice(0, 8)}...
-                    {user.publicAddress?.slice(-8)}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* No results */}
-        {searchTerm.length >= 2 &&
-          !isLoading &&
-          searchResults.length === 0 &&
-          !error && (
-            <div className="text-center py-4 text-gray-500">
-              No users found for &quot;{searchTerm}&quot;
+          {/* Loading state */}
+          {isLoading && (
+            <div className="text-center py-4 text-gray-500 absolute top-23">
+              Searching...
             </div>
           )}
 
-        <div className="flex gap-10">
-          <div className="flex flex-col items-center gap-2">
-            <div className="p-4 bg-[#CEBBFF] rounded-xl w-fit">
-              <Image
-                src={"/images/tokens-icon.svg"}
-                alt=""
-                width={30}
-                height={30}
-              />
+          {/* Error state */}
+          {error && (
+            <div className="text-center py-4 text-red-500 absolute top-23">
+              {error}
             </div>
-            <div className="flex flex-col items-center">
-              <div>Pay</div>
-              <div> Anyone</div>
+          )}
+
+          {/* Search results */}
+          {searchResults.length > 0 && (
+            <div className="space-y-3 absolute top-16 md:top-23 left-0 right-0">
+              <h3
+                className={
+                  numanFont.className +
+                  " md:text-md font-semibold text-[#6750A4]"
+                }
+              >
+                Search Results ({searchResults.length})
+              </h3>
+              {searchResults.map((user) => (
+                <div
+                  key={user.id}
+                  className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium text-gray-900">{user.name}</h4>
+                      <p className="text-[10px] md:text-sm text-gray-600">
+                        {user.email}
+                      </p>
+                    </div>
+                    <div className="text-xs text-gray-500 font-mono">
+                      {user.publicAddress?.slice(0, 3)}...
+                      {user.publicAddress?.slice(-6)}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <div className="p-4 bg-[#CEBBFF] rounded-xl w-fit">
-              <Image
-                src={"/images/recieve-icon.svg"}
-                alt=""
-                width={30}
-                height={30}
-              />
+          )}
+
+          {/* No results */}
+          {searchTerm.length >= 2 &&
+            !isLoading &&
+            searchResults.length === 0 &&
+            !error && (
+              <div className="text-center py-4 text-gray-500">
+                No users found for &quot;{searchTerm}&quot;
+              </div>
+            )}
+
+          <div className="flex gap-10">
+            <div className="flex flex-col items-center gap-2">
+              <div className="p-4 bg-[#CEBBFF] rounded-xl w-fit">
+                <Image
+                  src={"/images/QR-icon.svg"}
+                  alt=""
+                  width={30}
+                  height={30}
+                />
+              </div>
+              <div className="flex flex-col items-center">
+                <div>Scan any</div>
+                <div> QR code</div>
+              </div>
             </div>
-            <div>Recieve</div>
+            <div className="flex flex-col items-center gap-2">
+              <div className="p-4 bg-[#CEBBFF] rounded-xl w-fit">
+                <Image
+                  src={"/images/tokens-icon.svg"}
+                  alt=""
+                  width={30}
+                  height={30}
+                />
+              </div>
+              <div className="flex flex-col items-center">
+                <div>Pay</div>
+                <div> Anyone</div>
+              </div>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <div className="p-4 bg-[#CEBBFF] rounded-xl w-fit">
+                <Image
+                  src={"/images/recieve-icon.svg"}
+                  alt=""
+                  width={30}
+                  height={30}
+                />
+              </div>
+              <div>Recieve</div>
+            </div>
           </div>
         </div>
+        <TransactionHist userId={currentUser.id} limit={2} />
       </div>
-      <TransactionHist userId={currentUser.id} limit={3}/>
     </section>
   );
 };
