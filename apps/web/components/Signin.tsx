@@ -50,17 +50,21 @@ export default function Signin() {
     },
   });
 
+  React.useEffect(() => {
+    if(localStorage.getItem("authToken")) return router.push("/cryptopay");
+  }, [])
+
   return (
-    <div className="w-full md:w-[58%] h-full flex flex-col justify-evenly items-center">
+    <section className="w-full md:w-[58%] h-full flex flex-col justify-evenly items-center gap-5">
       <div
         className={
           numanFont.className +
-          " text-[36px] text-[#6750A4] w-[300px] md:w-[400px] lg:w-[500px]"
+          " text-[36px] text-[#6750A4] w-[200px] md:w-[300px] lg:w-[450px] xl:w-[500px] my-3"
         }
       >
         CryptoPay
       </div>
-      <div className="flex flex-col gap-12">
+      <div className="flex flex-col gap-3 lg:gap-5 xl:gap-7">
         <div className="text-[26px]">Sign in</div>
         <div>
           <form
@@ -69,7 +73,7 @@ export default function Signin() {
               e.preventDefault();
               form.handleSubmit();
             }}
-            className="w-[300px] md:w-[400px] lg:w-[500px] flex flex-col gap-8"
+            className="w-[200px] md:w-[300px] lg:w-[450px] xl:w-[500px] flex flex-col gap-8"
           >
             <FieldGroup>
               <div className="bg-[#E5DBFF] p-3 rounded-3xl">
@@ -151,6 +155,6 @@ export default function Signin() {
           </form>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
