@@ -55,11 +55,11 @@ export default function Signin() {
   }, [])
 
   return (
-    <section className="w-full md:w-[58%] h-full flex flex-col justify-evenly items-center gap-5">
+    <section className="w-full md:w-[58%] min-h-full flex flex-col justify-evenly items-center gap-5">
       <div
         className={
           numanFont.className +
-          " text-[36px] text-[#6750A4] w-[200px] md:w-[300px] lg:w-[450px] xl:w-[500px] my-3"
+          " text-[36px] text-[#6750A4] w-[200px] md:w-[300px] lg:w-[450px] xl:w-[500px] xl:my-6"
         }
       >
         CryptoPay
