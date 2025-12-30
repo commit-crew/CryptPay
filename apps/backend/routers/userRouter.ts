@@ -45,8 +45,7 @@ userRouter.post("/signup", async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      id: newUser!.id,
-      email: newUser!.email,
+      message: newUser?.email
     });
   } catch (error) {
     const errorMessage =

@@ -8,7 +8,7 @@ import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
 import { numanFont } from "@/app/fonts";
 import { signinSchema } from "@/lib/schemas";
-import { UnifiedWalletButton, useWallet } from "@jup-ag/wallet-adapter";
+import { UnifiedWalletButton } from "@jup-ag/wallet-adapter";
 import {
   Field,
   FieldError,
@@ -19,7 +19,6 @@ import { signIn } from "@/lib/user";
 
 export default function Signin() {
   const router = useRouter();
-  const { publicKey } = useWallet();
   const form = useForm({
     defaultValues: {
       email: "",
@@ -52,19 +51,19 @@ export default function Signin() {
 
   React.useEffect(() => {
     if(localStorage.getItem("authToken")) return router.push("/cryptopay");
-  }, [])
+  }, [router])
 
   return (
     <section className="w-full md:w-[58%] min-h-full flex flex-col justify-evenly items-center gap-5">
       <div
         className={
           numanFont.className +
-          " text-[36px] text-[#6750A4] w-[200px] md:w-[300px] lg:w-[450px] xl:w-[500px] xl:my-6"
+          " text-[36px] text-[#6750A4] w-[300px] md:w-[360px] lg:w-[450px] xl:w-[500px] xl:my-6"
         }
       >
         CryptoPay
       </div>
-      <div className="flex flex-col gap-3 lg:gap-5 xl:gap-7">
+      <div className="flex flex-col gap-7 xl:gap-9">
         <div className="text-[26px]">Sign in</div>
         <div>
           <form
@@ -73,13 +72,12 @@ export default function Signin() {
               e.preventDefault();
               form.handleSubmit();
             }}
-            className="w-[200px] md:w-[300px] lg:w-[450px] xl:w-[500px] flex flex-col gap-8"
+            className="w-[300px] md:w-[360px] lg:w-[450px] xl:w-[500px] flex flex-col gap-8"
           >
             <FieldGroup>
               <div className="bg-[#E5DBFF] p-3 rounded-3xl">
-                <form.Field
-                  name="email"
-                  children={(field) => {
+                <form.Field name="email">
+                  {(field) => {
                     const isInvalid =
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
@@ -100,14 +98,13 @@ export default function Signin() {
                       </Field>
                     );
                   }}
-                />
+                </form.Field>
               </div>
             </FieldGroup>
             <FieldGroup>
               <div className="bg-[#E5DBFF] px-4 py-3 rounded-3xl">
-                <form.Field
-                  name="password"
-                  children={(field) => {
+                <form.Field name="password">
+                  {(field) => {
                     const isInvalid =
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
@@ -121,6 +118,7 @@ export default function Signin() {
                           onChange={(e) => field.handleChange(e.target.value)}
                           aria-invalid={isInvalid}
                           className="focus:ring-0 border-none shadow-none focus-visible:ring-0 p-0 text-[#6750A4]"
+                          type="password"
                         />
                         {isInvalid && (
                           <FieldError errors={field.state.meta.errors} />
@@ -128,7 +126,7 @@ export default function Signin() {
                       </Field>
                     );
                   }}
-                />
+                </form.Field>
               </div>
             </FieldGroup>
             <div className="flex flex-col mt-4 gap-1">
