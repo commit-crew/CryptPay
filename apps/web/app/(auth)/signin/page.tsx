@@ -15,8 +15,8 @@ const SigninPage = () => {
         }
       >
         <div>
-          <motion.div className="text-[50px] lg:text-[70px]">Payments</motion.div>
-          <motion.div className="text-[50px] lg:text-[70px]"
+          <motion.div className="text-4xl lg:text-7xl">Payments</motion.div>
+          <motion.div className="text-4xl lg:text-7xl"
           initial={{
             x: 30,
           }}
@@ -29,7 +29,7 @@ const SigninPage = () => {
             repeatType: "reverse"
           }}
           >Made</motion.div>
-          <motion.div className="text-[50px] lg:text-[70px]"
+          <motion.div className="text-4xl lg:text-7xl"
           initial={{
             x: 55
           }}
