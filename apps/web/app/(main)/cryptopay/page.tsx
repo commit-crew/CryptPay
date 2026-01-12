@@ -202,7 +202,7 @@ const CryptoPay = () => {
             )}
 
           <div className="flex gap-10">
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex md:hidden flex-col items-center gap-2">
               <div className="p-4 bg-[#CEBBFF] rounded-xl w-fit">
                 <Image
                   src={"/images/QR-icon.svg"}
