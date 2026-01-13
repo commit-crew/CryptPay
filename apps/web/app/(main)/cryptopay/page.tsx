@@ -8,6 +8,7 @@ import { searchUsers, verifyToken } from "@/lib/user";
 import type { User, CurrentUser } from "@/lib/types";
 import TransactionHist from "@/components/TransactionHist";
 import { useDebounce } from "@/lib/hooks";
+import QR from "@/components/QR";
 
 const CryptoPay = () => {
   const router = useRouter();
@@ -31,9 +32,8 @@ const CryptoPay = () => {
           return;
         }
 
-        // Verify token with backend
         const response = await verifyToken(token);
-        setCurrentUser(response.data);
+        setCurrentUser(response.data ?? null);
       } catch (error) {
         console.error("Auth verification failed:", error);
         localStorage.removeItem("authToken");
@@ -211,10 +211,7 @@ const CryptoPay = () => {
                   height={30}
                 />
               </div>
-              <div className="flex flex-col items-center">
-                <div>Scan any</div>
-                <div> QR code</div>
-              </div>
+              <QR publicAddress={currentUser.publicAddress}/>
             </div>
             <div className="flex flex-col items-center gap-2">
               <div className="p-4 bg-[#CEBBFF] rounded-xl w-fit">
