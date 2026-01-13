@@ -7,8 +7,9 @@ import { useRouter } from "next/navigation";
 import { verifyToken } from "@/lib/user";
 import type { CurrentUser } from "@/lib/types";
 import TransactionHist from "@/components/TransactionHist";
-import QR from "@/components/QRRecieve";
 import Search from "@/components/Search";
+import QRRecieve from "@/components/QRRecieve";
+import QRScan from "@/components/QRScan";
 
 const CryptoPay = () => {
   const router = useRouter();
@@ -166,9 +167,9 @@ const CryptoPay = () => {
       ) : searchOpen ? (
         <Search setSearchOpen={setSearhOpen}/>
       ) : QROpen ? (
-        <></>
+        <QRScan />
       ) : (
-        <></>
+        <QRRecieve publicAddress={ currentUser.publicAddress } name={currentUser.name} setRecieveOpen={setRecieveOpen}/>
       )}
     </section>
   );
