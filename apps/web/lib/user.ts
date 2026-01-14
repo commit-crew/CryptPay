@@ -1,5 +1,6 @@
 "use server";
 
+import { success } from "zod";
 import { User } from "./types";
 
 export const signIn = async (email: string, password: string) => {
@@ -150,16 +151,34 @@ export const verifyValidAccountHolder = async (publicAddress: string, token: str
       body: JSON.stringify({ address: publicAddress })
     });
 
-    const data = await respDB.json() as { success: boolean, data: User | undefined, message: string | undefined }
-    if(data.success) {
+    const dataDB = await respDB.json() as { success: boolean, data: User | undefined, message: string | undefined }
+    if(dataDB.success) {
       return {
-        ...data.data!
+        user: dataDB.data!,
+        success: true
       }
     }
     
     // If no data of user in our DB just check valid solana address using alchemy getAccountInfo.
-    const respRPC = await fetch();
-  } catch (error) {
-    
+    const url = `${process.env.NEXT_PUBLIC_NET_MODE! === "mainnet" ? process.env.NEXT_PRIVATE_MAINNET_API_URL : process.env.NEXT_PRIVATE_DEVNET_API_URL }`;
+    const options = {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: `[${publicAddress}]`
+    };
+
+    const respRPC = await fetch(url, options);
+    if(!respRPC.ok) {
+      return {
+        success: false
+      }
+    }
+    return {
+      success: true
+    }
+  } catch (_) {
+    return {
+      success: false
+    }
   }
 }
