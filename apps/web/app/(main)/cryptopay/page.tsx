@@ -14,7 +14,7 @@ import QRScan from "@/components/QRScan";
 const CryptoPay = () => {
   const router = useRouter();
   const [searchOpen, setSearhOpen] = useState(false);
-  const [QROpen, setQROpen] = useState(false);
+  const [scanOpen, setScanOpen] = useState(false);
   const [recieveOpen, setRecieveOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
@@ -63,7 +63,7 @@ const CryptoPay = () => {
 
   return (
     <section className="max-w-[1600px] min-h-screen flex flex-col items-center justify-between">
-      {!searchOpen && !QROpen && !recieveOpen ? (
+      {!searchOpen && !scanOpen && !recieveOpen ? (
         <>
           <div className="flex justify-between items-center p-8 w-full">
             <div
@@ -112,7 +112,7 @@ const CryptoPay = () => {
               <div className="flex gap-10">
                 <div
                   className="flex md:hidden flex-col items-center gap-2"
-                  onClick={() => setQROpen(true)}
+                  onClick={() => setScanOpen(true)}
                 >
                   <div className="p-4 bg-[#CEBBFF] rounded-xl w-fit">
                     <Image
@@ -166,8 +166,8 @@ const CryptoPay = () => {
         </>
       ) : searchOpen ? (
         <Search setSearchOpen={setSearhOpen}/>
-      ) : QROpen ? (
-        <QRScan />
+      ) : scanOpen ? (
+        <QRScan setScanOpen={setScanOpen}/>
       ) : (
         <QRRecieve publicAddress={ currentUser.publicAddress } name={currentUser.name} setRecieveOpen={setRecieveOpen}/>
       )}
