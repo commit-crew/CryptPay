@@ -6,17 +6,18 @@ import type { Transaction, TransactionHistProps } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import Image from "next/image";
 
-const TransactionHist = ({ userId, limit = 10 }: TransactionHistProps) => {
+const TransactionHist = ({ limit = 10 }: TransactionHistProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTransactions = async () => {
+      const token = localStorage.getItem("authToken");
       try {
         setIsLoading(true);
         setError(null);
-        const response = await getTransactionHistory(userId, limit);
+        const response = await getTransactionHistory(token!, limit);
         setTransactions(response.data || []);
       } catch (err) {
         setError(
@@ -27,10 +28,10 @@ const TransactionHist = ({ userId, limit = 10 }: TransactionHistProps) => {
       }
     };
 
-    if (userId) {
+    
       fetchTransactions();
-    }
-  }, [userId, limit]);
+    
+  }, [limit]);
 
   const getTokenIcon = (token: string) => {
     // You can customize these colors or use actual token icons

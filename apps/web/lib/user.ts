@@ -1,5 +1,7 @@
 "use server";
 
+import { User } from "./types";
+
 export const signIn = async (email: string, password: string) => {
   try {
     const resp = await fetch(process.env.NEXT_PRIVATE_BACKEND_URL! + "/user/signin", {
@@ -46,13 +48,15 @@ export const signUp = async (name: string, email: string, password: string, publ
   }
 };
 
-export const searchUsers = async (name: string) => {
+export const searchUsers = async (name: string, token: string) => {
   try {
     const resp = await fetch(process.env.NEXT_PRIVATE_BACKEND_URL! + `/user/search?name=${encodeURIComponent(name)}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        Origin: process.env.NEXT_PUBLIC_FRONTEND_URL!,
+        Authorization: token
+      }
     });
 
     const data = await resp.json();
@@ -68,13 +72,15 @@ export const searchUsers = async (name: string) => {
   }
 };
 
-export const getTransactionHistory = async (userId: string, limit: number = 10) => {
+export const getTransactionHistory = async (token: string, limit: number = 10) => {
   try {
-    const resp = await fetch(process.env.NEXT_PRIVATE_BACKEND_URL! + `/transaction/history/${userId}?limit=${limit}`, {
+    const resp = await fetch(process.env.NEXT_PRIVATE_BACKEND_URL! + `/transaction/history?limit=${limit}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
+        Origin: process.env.NEXT_PUBLIC_FRONTEND_URL!,
+        Authorization: token
+      }
     });
 
     const data = await resp.json();
@@ -98,8 +104,9 @@ export const verifyToken = async (token: string) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ token })
+        Origin: process.env.NEXT_PUBLIC_FRONTEND_URL!,
+        Authorization: token
+      }
     });
 
     console.log("Response status:", resp.status);
@@ -131,3 +138,28 @@ export const verifyToken = async (token: string) => {
     throw error;
   }
 };
+
+export const verifyValidAccountHolder = async (publicAddress: string, token: string) => {
+  try {
+    const respDB = await fetch(`${process.env.NEXT_PRIVATE_BACKEND_URL}` + "/address", {
+      headers: {
+        "Content-type": "application/json",
+        Origin: process.env.NEXT_PUBLIC_FRONTEND_URL!,
+        Authorization: token
+      },
+      body: JSON.stringify({ address: publicAddress })
+    });
+
+    const data = await respDB.json() as { success: boolean, data: User | undefined, message: string | undefined }
+    if(data.success) {
+      return {
+        ...data.data!
+      }
+    }
+    
+    // If no data of user in our DB just check valid solana address using alchemy getAccountInfo.
+    const respRPC = await fetch();
+  } catch (error) {
+    
+  }
+}

@@ -2,10 +2,11 @@ import { Router, type Request, type Response } from "express";
 import { transactionHistory, usersTable } from "db/tables";
 import { db, eq } from "db/connection";
 import { alias } from "drizzle-orm/pg-core";
+import { authMiddleware } from "../middleware";
 
 const transactionRouter = Router();
 
-transactionRouter.post("/process", async (req: Request, res: Response) => {
+transactionRouter.post("/save", authMiddleware, async (req: Request, res: Response) => {
   try {
     const data = req.body;
     const {
@@ -56,9 +57,9 @@ transactionRouter.post("/process", async (req: Request, res: Response) => {
   }
 });
 
-transactionRouter.get("/history/:userId", async (req: Request, res: Response) => {
+transactionRouter.get("/history", authMiddleware, async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const { id: userId } = req.user
     const { limit = "10" } = req.query;
 
     if (!userId) {

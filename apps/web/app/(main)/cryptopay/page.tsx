@@ -161,7 +161,7 @@ const CryptoPay = () => {
                 </div>
               </div>
             </div>
-            <TransactionHist userId={currentUser.id} limit={2} />
+            <TransactionHist limit={2} />
           </div>
         </>
       ) : searchOpen ? (

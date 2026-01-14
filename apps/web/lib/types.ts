@@ -31,7 +31,6 @@ export interface Transaction {
 }
 
 export interface TransactionHistProps {
-  userId: string;
   limit?: number;
 }
 

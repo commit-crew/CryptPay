@@ -21,11 +21,12 @@ const Search = ({
   useEffect(() => {
     searchbarRef.current?.focus();
     const performSearch = async () => {
+      const token = localStorage.getItem("authToken");
       if (debouncedSearchTerm && debouncedSearchTerm.length >= 2) {
         setIsLoading(true);
         setError(null);
         try {
-          const response = await searchUsers(debouncedSearchTerm);
+          const response = await searchUsers(debouncedSearchTerm, token!);
           setSearchResults(response.data || []);
         } catch (err) {
           setError(err instanceof Error ? err.message : "Search failed");

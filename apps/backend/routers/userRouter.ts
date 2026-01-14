@@ -1,8 +1,9 @@
-import { db, eq, like } from "db/connection";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { Router } from "express";
 import { usersTable } from "db/tables";
-import jwt from "jsonwebtoken";
+import { db, eq, like } from "db/connection";
+import { authMiddleware } from "../middleware";
 
 const userRouter = Router();
 
@@ -114,7 +115,7 @@ userRouter.post("/signin", async (req, res) => {
   }
 });
 
-userRouter.get("/search", async (req, res) => {
+userRouter.get("/search", authMiddleware, async (req, res) => {
   try {
     const { name } = req.query;
 
@@ -152,21 +153,23 @@ userRouter.get("/search", async (req, res) => {
   }
 });
 
-userRouter.post("/verify", async (req, res) => {
+userRouter.post("/verify", authMiddleware, async (req, res) => {
+    return res.status(200).json({
+      success: true,
+      data: req.user,
+      message: "Token verified successfully",
+    });
+});
+
+userRouter.post("/address", authMiddleware, async (req, res) => {
+  const { address } = req.body();
   try {
-    const { token } = req.body;
-
-    if (!token) {
+    if(!address) {
       return res.status(400).json({
-        success: false,
-        message: "Token is required",
-      });
+        message: "Invalid input",
+        success: false
+      })
     }
-
-    // Verify the JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "") as { email: string; userId: string };
-
-    // Get user details from database
     const user = await db
       .select({
         id: usersTable.id,
@@ -175,33 +178,25 @@ userRouter.post("/verify", async (req, res) => {
         publicAddress: usersTable.publicAddress,
       })
       .from(usersTable)
-      .where(eq(usersTable.id, decoded.userId));
+      .where(eq(usersTable.publicAddress, address));
 
-    if (user.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+    if(!(user.length === 0)) {
+      return res.status(200).json({
+        data: user[0],
+        success: true
+      })
     }
 
-    return res.status(200).json({
-      success: true,
-      data: user[0],
-      message: "Token verified successfully",
-    });
+    return res.status(404).json({
+      message: "User not found",
+      success: false
+    })
   } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid token",
-      });
-    }
-    
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : "Interval server error"
     return res.status(500).json({
       message: errorMessage,
-      success: false,
-    });
+      success: false
+    })
   }
 });
 
